@@ -232,7 +232,7 @@ function loadImage(file) {
 
 async function validateImageFile(file, type = "screenshot") {
   if (!file) {
-return { valid: false, reason: `attach a ${type} screenshot before i analyze it.` };
+    return { valid: false, reason: `attach a ${type} screenshot before i analyze it.` };
   }
 
   if (!file.type.startsWith("image/")) {
