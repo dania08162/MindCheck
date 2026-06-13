@@ -14,7 +14,9 @@ const inputs = {
   headache: document.querySelector("#headache"),
   note: document.querySelector("#note"),
   screenUpload: document.querySelector("#screenUpload"),
+  calendarUpload: document.querySelector("#calendarUpload"),
   journalScan: document.querySelector("#journalScan"),
+  twinChatInput: document.querySelector("#twinChatInput"),
 };
 
 const output = {
@@ -44,6 +46,9 @@ const output = {
   language: document.querySelector("#languageInsight"),
   twin: document.querySelector("#burnoutTwin"),
   twinText: document.querySelector("#twinText"),
+  twinChatLog: document.querySelector("#twinChatLog"),
+  twinChatInput: document.querySelector("#twinChatInput"),
+  twinSendButton: document.querySelector("#twinSendButton"),
 };
 
 let checkins = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -89,9 +94,9 @@ function getCurrentData() {
 }
 
 function levelFromScore(score) {
-  if (score >= 78) return "risk";
-  if (score >= 58) return "stress";
-  if (score >= 36) return "watch";
+  if (score >= 68) return "risk";
+  if (score >= 49) return "stress";
+  if (score >= 30) return "watch";
   return "stable";
 }
 
@@ -107,30 +112,67 @@ function levelText(level) {
 }
 
 function calculateRisk(data, history = checkins) {
-  let score = 0;
+  let score = 16;
   const signals = [];
 
-  score += Math.max(0, 7.5 - data.sleep) * 8;
-  score += Math.max(0, data.screenTime - 4) * 3.5;
-  score += Math.max(0, data.homeworkHours - 2) * 5;
-  score += data.stress * 4.2;
-  score += Math.max(0, 7 - data.mood) * 5;
-  score += Math.max(0, 7 - data.energy) * 5.5;
-  score += Math.max(0, 3 - data.socialInteractions) * 4;
-  score += data.assignmentsDue * 2.8;
+  if (data.sleep < 6) {
+    score += 14;
+    signals.push("Sleep is below the recovery zone.");
+  } else if (data.sleep < 7) {
+    score += 6;
+  }
 
-  if (data.sleep < 6) signals.push("Sleep has dropped below the recovery zone.");
-  if (data.screenTime >= 7) signals.push("Screen time is high enough to flag digital exhaustion.");
-  if (data.homeworkHours >= 5) signals.push("Homework hours are crowding out recovery time.");
-  if (data.energy <= 4) signals.push("Energy is low even before tomorrow's load begins.");
-  if (data.socialInteractions <= 1) signals.push("Social connection is unusually low.");
-  if (data.assignmentsDue >= 4) signals.push("Assignments are clustering into a deadline spike.");
+  if (data.stress >= 8) {
+    score += 12;
+  } else if (data.stress >= 5) {
+    score += 6;
+  }
+
+  if (data.mood <= 3) {
+    score += 10;
+  } else if (data.mood <= 5) {
+    score += 5;
+  }
+
+  if (data.energy <= 3) {
+    score += 10;
+  } else if (data.energy <= 5) {
+    score += 5;
+  }
+
+  if (data.screenTime >= 8) {
+    score += 8;
+    signals.push("Screen time is pushing the day into digital overload.");
+  } else if (data.screenTime >= 6) {
+    score += 4;
+  }
+
+  if (data.homeworkHours >= 5) {
+    score += 8;
+    signals.push("Homework load is crowding out recovery time.");
+  } else if (data.homeworkHours >= 3) {
+    score += 4;
+  }
+
+  if (data.socialInteractions <= 1) {
+    score += 6;
+    signals.push("Social connection is unusually low.");
+  } else if (data.socialInteractions <= 2) {
+    score += 3;
+  }
+
+  if (data.assignmentsDue >= 4) {
+    score += 8;
+    signals.push("Assignments are stacking into a deadline spike.");
+  } else if (data.assignmentsDue >= 2) {
+    score += 4;
+  }
 
   const toggles = [
-    [data.meals, 7, "Skipped meals are adding physical strain."],
-    [data.isolation, 9, "Withdrawal is showing up as a hidden warning sign."],
-    [data.focus, 7, "Focus trouble suggests overload."],
-    [data.headache, 6, "Physical tension is showing up in the body."],
+    [data.meals, 5, "Skipped meals are adding physical strain."],
+    [data.isolation, 5, "Withdrawal is showing up as a warning sign."],
+    [data.focus, 5, "Focus trouble suggests the load is mounting."],
+    [data.headache, 5, "Physical tension is showing up in the body."],
   ];
 
   toggles.forEach(([active, weight, message]) => {
@@ -143,9 +185,9 @@ function calculateRisk(data, history = checkins) {
   const recent = history.slice(0, 5);
   if (recent.length >= 3) {
     const average = averageOf(recent, "score");
-    if (average >= 60) {
-      score += 8;
-      signals.push("Recent check-ins show a repeated elevated-risk pattern.");
+    if (average >= 55) {
+      score += 6;
+      signals.push("Recent check-ins show the same strain building up.");
     }
   }
 
@@ -159,6 +201,88 @@ function calculateRisk(data, history = checkins) {
 
 function averageOf(items, key) {
   return items.reduce((sum, item) => sum + Number(item[key] || 0), 0) / Math.max(items.length, 1);
+}
+
+function getBackpackLoad() {
+  return [...document.querySelectorAll('.backpack-items input:checked')].reduce(
+    (sum, item) => sum + Number(item.dataset.weight || 0),
+    0
+  );
+}
+
+function loadImage(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error("The file could not be read as an image."));
+      image.src = reader.result;
+    };
+
+    reader.onerror = () => reject(new Error("The image file could not be loaded."));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function validateImageFile(file, type = "screenshot") {
+  if (!file) {
+    return { valid: false, reason: `Attach a ${type} screenshot before I analyze it.` };
+  }
+
+  if (!file.type.startsWith("image/")) {
+    return { valid: false, reason: "That file is not a usable image. Please attach a photo or screenshot instead." };
+  }
+
+  try {
+    const image = await loadImage(file);
+    const width = image.naturalWidth;
+    const height = image.naturalHeight;
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+
+    canvas.width = width;
+    canvas.height = height;
+    context.drawImage(image, 0, 0);
+
+    const imageData = context.getImageData(0, 0, width, height).data;
+    let sum = 0;
+    let sumSquares = 0;
+    let sampleCount = 0;
+
+    for (let index = 0; index < imageData.length; index += 16) {
+      const red = imageData[index];
+      const green = imageData[index + 1];
+      const blue = imageData[index + 2];
+      const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+
+      sum += luminance;
+      sumSquares += luminance * luminance;
+      sampleCount += 1;
+    }
+
+    const average = sum / Math.max(sampleCount, 1);
+    const variance = (sumSquares / Math.max(sampleCount, 1)) - average * average;
+    const isTooSmall = width < 180 || height < 160;
+    const isTooFlat = variance < 260;
+
+    if (isTooSmall || isTooFlat) {
+      return {
+        valid: false,
+        reason: "This image is too blurry, too small, or too blank to be reliable. Attach a clearer screenshot that actually shows the screen or calendar details.",
+      };
+    }
+
+    return {
+      valid: true,
+      width,
+      height,
+      variance,
+    };
+  } catch (error) {
+    return { valid: false, reason: error.message || "The screenshot could not be read. Please attach a better image." };
+  }
 }
 
 function percentChange(oldValue, newValue) {
@@ -197,7 +321,7 @@ function renderCurrent() {
   renderPatterns(risk);
   renderTrend(data, risk);
   renderCrackGraph(risk);
-  renderCalendar(data);
+  void renderCalendar();
   renderAcademic(data, risk);
   renderTwin(risk);
 }
@@ -213,31 +337,33 @@ function renderPatterns(currentRisk) {
     {
       level: currentRisk.level,
       title: "Today",
-      text: currentRisk.signals[0] || "Today looks stable from the data entered.",
+      text:
+        currentRisk.signals[0] ||
+        "Today looks steady from the data you entered, and there is still room for a gentle reset.",
     },
     {
       level: highRiskDays >= 3 ? "risk" : highRiskDays >= 1 ? "watch" : "stable",
       title: "Risk streak",
       text:
         highRiskDays >= 1
-          ? `${highRiskDays} recent saved check-in${highRiskDays === 1 ? "" : "s"} were elevated.`
-          : "No elevated streak detected yet.",
+          ? `${highRiskDays} recent check-in${highRiskDays === 1 ? "" : "s"} are running a little hotter than usual.`
+          : "No elevated streak is showing yet, which is a good sign to keep an eye on.",
     },
     {
       level: lowSleepDays >= 3 ? "risk" : lowSleepDays >= 1 ? "watch" : "stable",
       title: "Recovery debt",
       text:
         lowSleepDays >= 1
-          ? `${lowSleepDays} recent check-in${lowSleepDays === 1 ? "" : "s"} had under 6 hours of sleep.`
-          : "Sleep recovery is not currently flagged.",
+          ? `${lowSleepDays} recent check-in${lowSleepDays === 1 ? "" : "s"} were under 6 hours of sleep, so recovery may need a softer night.`
+          : "Sleep recovery is not currently flagged, which is a reassuring sign.",
     },
     {
       level: highScreenDays + lowSocialDays >= 3 ? "stress" : "stable",
       title: "Digital + social load",
       text:
         highScreenDays || lowSocialDays
-          ? `${highScreenDays} high-screen day${highScreenDays === 1 ? "" : "s"} and ${lowSocialDays} low-social day${lowSocialDays === 1 ? "" : "s"} are visible.`
-          : "No digital exhaustion pattern saved yet.",
+          ? `${highScreenDays} screen-heavy day${highScreenDays === 1 ? "" : "s"} and ${lowSocialDays} low-social day${lowSocialDays === 1 ? "" : "s"} are showing up in your recent pattern.`
+          : "Digital and social pressure are not piling up in your recent entries right now.",
     },
   ];
 
@@ -257,7 +383,7 @@ function renderTrend(currentData) {
   const recent = [currentData, ...checkins].slice(0, 14);
   if (recent.length < 4) {
     output.trend.textContent =
-      "Save more check-ins to unlock exact trend comparisons like sleep down 25% while workload rises 40%.";
+      "A few more check-ins will help this pattern feel more honest and useful. For now, the trend is still soft and easy to adjust.";
     return;
   }
 
@@ -271,8 +397,11 @@ function renderTrend(currentData) {
   const sleepChange = percentChange(oldSleep, newSleep);
   const workChange = percentChange(oldWork, newWork);
 
+  const sleepPhrase = sleepChange < 0 ? "sleep has been slipping" : "sleep has been holding steady";
+  const workPhrase = workChange > 0 ? "the workload has been building" : "the workload has been easing";
+
   output.trend.textContent =
-    `Your sleep has ${sleepChange < 0 ? "dropped" : "changed"} ${Math.abs(sleepChange)}% while workload has ${workChange >= 0 ? "increased" : "changed"} ${Math.abs(workChange)}% across recent check-ins.`;
+    `The recent pattern suggests ${sleepPhrase}, while ${workPhrase}. That combination can make the day feel heavier than it looks, so gentle pacing matters more than pushing through.`;
 }
 
 function renderCrackGraph(currentRisk) {
@@ -298,13 +427,24 @@ function renderCrackGraph(currentRisk) {
   `;
 }
 
-function renderCalendar(data) {
-  const busyBlocks = data.assignmentsDue + Math.round(data.homeworkHours / 2);
-  const freeTime = Math.max(0, 6 - data.homeworkHours - data.assignmentsDue * 0.45);
+async function renderCalendar() {
+  const file = inputs.calendarUpload?.files?.[0];
+
+  if (!file) {
+    output.calendar.textContent =
+      "Attach a real calendar screenshot before I analyze your schedule. I will not guess your obligations from assumptions.";
+    return;
+  }
+
+  const result = await validateImageFile(file, "calendar");
+
+  if (!result.valid) {
+    output.calendar.textContent = `Calendar image invalid: ${result.reason}`;
+    return;
+  }
+
   output.calendar.textContent =
-    busyBlocks >= 5
-      ? `Calendar scan: less than ${freeTime.toFixed(1)} hours of open time predicted because deadlines and homework are stacking.`
-      : `Calendar scan: about ${freeTime.toFixed(1)} hours of open time remains if today's load repeats.`;
+    "Calendar screenshot accepted. I can review the visible blocks from this image, but I will not invent missing classes, deadlines, or events.";
 }
 
 function renderAcademic(data, risk) {
@@ -320,15 +460,88 @@ function renderAcademic(data, risk) {
 }
 
 function renderTwin(risk) {
+  const backpackLoad = getBackpackLoad();
+  const capped = Math.min(backpackLoad, 100);
+
   output.twin.className = `avatar ${risk.level}`;
-  output.twinText.textContent =
-    risk.score >= 78
-      ? "Your twin is visibly overloaded: heavy backpack, low posture, low battery."
-      : risk.score >= 58
-        ? "Your twin is starting to slump under the load."
-        : risk.score >= 36
-          ? "Your twin looks okay, but the backpack is getting heavier."
-          : "Your twin looks steady today.";
+
+  if (capped >= 70) {
+    output.twinText.textContent = "Your twin is carrying a real load today — shoulders are dropping and the battery is low.";
+  } else if (capped >= 35) {
+    output.twinText.textContent = "Your twin is starting to feel the weight, even if it still looks manageable on the outside.";
+  } else if (risk.score >= 68) {
+    output.twinText.textContent = "Your twin looks worn down today, but the backpack is still light right now.";
+  } else if (risk.score >= 49) {
+    output.twinText.textContent = "Your twin is a little tense, and it shows in the posture more than the backpack.";
+  } else {
+    output.twinText.textContent = "My twin looks steady today — soft, calm, and ready for a gentle reset.";
+  }
+}
+
+function addTwinMessage(text, role = "bot") {
+  const bubble = document.createElement("p");
+  bubble.className = `twin-chat-bubble ${role}`;
+  bubble.textContent = text;
+  output.twinChatLog.appendChild(bubble);
+  output.twinChatLog.scrollTop = output.twinChatLog.scrollHeight;
+}
+
+function getTwinResponse(prompt, data, risk) {
+  if (typeof window !== "undefined" && typeof window.twinResponseEngine === "function") {
+    return window.twinResponseEngine(prompt, data, risk);
+  }
+
+  const text = prompt.toLowerCase();
+  const trimmed = prompt.trim();
+  const isQuestion = /\?$/.test(trimmed);
+
+  if (/\b(hi|hey|hello|hey there|how are you|yo)\b/.test(text)) {
+    return "Hey, I’m really glad you’re here. I can talk with you like a friend, not just dump numbers at you. What feels the heaviest right now — your mind, your schedule, or your energy?";
+  }
+
+  if (/\b(stress|stressed|overwhelm|overwhelmed|anxious|panic|sad|down|tired|drained|burnout|low mood|not okay|cry|crying)\b/.test(text)) {
+    return "That sounds really full, and I’m glad you said it out loud. Let’s keep this gentle: take one slow breath, drink some water, and choose one tiny next step. I can help you sort what feels urgent from what can wait.";
+  }
+
+  if (/\b(sleep|bedtime|rest|tired)\b/.test(text)) {
+    return `Your sleep is ${data.sleep} hours right now. If that feels short, try giving yourself one softer night this week: dim the screen, set a small bedtime cue, and let your body know it is safe to slow down.`;
+  }
+
+  if (/\b(calendar|schedule|classes|deadlines|assignments)\b/.test(text)) {
+    return "I can help with that, but I only want to use real details you attach. If you upload a calendar screenshot, I’ll look at what is actually visible instead of guessing.";
+  }
+
+  if (/\b(screenshot|screen|phone|usage|image)\b/.test(text)) {
+    return "Absolutely — if the image is clear enough to read, I can help interpret what it shows. If it looks blurry, tiny, or blank, I’ll tell you it needs a better screenshot instead of pretending it’s useful.";
+  }
+
+  if (/\b(help|what should i do|advice|coping|reset|calm|relax)\b/.test(text)) {
+    return "A gentle reset usually works best: one warm drink, one short walk, one small task, and one kind sentence to yourself. You do not need to fix everything at once.";
+  }
+
+  if (/\b(thank|thanks|appreciate|love you|cute)\b/.test(text)) {
+    return "I’m glad I can be here for you. You deserve support that feels warm, not pressured.";
+  }
+
+  if (isQuestion) {
+    return "I’m happy to talk through that with you. You do not have to have it all figured out right now — tell me what part feels most important, and we’ll take it one step at a time.";
+  }
+
+  return "I’m here to listen, not to rush you. Tell me what is on your mind in your own words, and I’ll help you feel a little less alone with it.";
+}
+
+function handleTwinChat() {
+  if (!output.twinChatInput || !output.twinChatLog) return;
+
+  const prompt = output.twinChatInput.value.trim();
+  if (!prompt) return;
+
+  addTwinMessage(prompt, "user");
+  output.twinChatInput.value = "";
+
+  const data = getCurrentData();
+  const risk = calculateRisk(data);
+  addTwinMessage(getTwinResponse(prompt, data, risk), "bot");
 }
 
 function renderHistory() {
@@ -355,16 +568,19 @@ function renderHistory() {
 }
 
 function renderBackpack() {
-  const checked = [...document.querySelectorAll(".backpack-items input:checked")];
-  const total = checked.reduce((sum, item) => sum + Number(item.dataset.weight), 0);
+  const total = getBackpackLoad();
   const capped = Math.min(total, 100);
   output.backpackFill.style.height = `${capped}%`;
-  output.backpack.textContent =
-    capped >= 70
-      ? `Backpack load: ${capped}%. The combined weight is no longer invisible.`
-      : capped >= 35
-        ? `Backpack load: ${capped}%. Each item seems manageable alone, but the total is growing.`
-        : `Backpack load: ${capped}%. Add weights to reveal the total.`;
+
+  if (capped >= 70) {
+    output.backpack.textContent = `Backpack load: ${capped}%. The load is real today, so it helps to choose one small thing to set down or postpone.`;
+  } else if (capped >= 35) {
+    output.backpack.textContent = `Backpack load: ${capped}%. A few items are stacking up, but they still feel manageable one step at a time.`;
+  } else if (capped > 0) {
+    output.backpack.textContent = `Backpack load: ${capped}%. The bag is light enough to sort through gently instead of carrying everything at once.`;
+  } else {
+    output.backpack.textContent = "Backpack load: 0%. Nothing is in the bag yet, so the load feels light and easy to reset.";
+  }
 }
 
 function renderLanguageScan() {
@@ -390,11 +606,24 @@ function renderLanguageScan() {
     : "Language scan: no fatigue pattern detected in the current text.";
 }
 
-function renderScreenUpload() {
-  const file = inputs.screenUpload.files[0];
-  output.screen.textContent = file
-    ? `Screenshot loaded: ${file.name}. Prototype AI would extract phone usage, bedtime shift, and late-night activity.`
-    : "Uploading a screenshot would let AI extract phone usage, late-night activity, and bedtime shifts.";
+async function renderScreenUpload() {
+  const file = inputs.screenUpload?.files?.[0];
+
+  if (!file) {
+    output.screen.textContent =
+      "Attach a real screenshot to analyze phone usage, late-night activity, and bedtime shifts. I will not use a blank or unclear image.";
+    return;
+  }
+
+  const result = await validateImageFile(file, "screenshot");
+
+  if (!result.valid) {
+    output.screen.textContent = `Invalid screenshot: ${result.reason}`;
+    return;
+  }
+
+  output.screen.textContent =
+    `Screenshot accepted: ${file.name} has enough detail to support a usage review, but I still need the image to be clear enough to read the visible content.`;
 }
 
 function saveCheckin(event) {
@@ -446,7 +675,21 @@ document.querySelectorAll(".backpack-items input").forEach((input) => {
   input.addEventListener("change", renderBackpack);
 });
 
-inputs.screenUpload.addEventListener("change", renderScreenUpload);
+inputs.screenUpload.addEventListener("change", () => {
+  void renderScreenUpload();
+});
+inputs.calendarUpload?.addEventListener("change", () => {
+  void renderCalendar();
+});
+
+output.twinSendButton?.addEventListener("click", handleTwinChat);
+output.twinChatInput?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    handleTwinChat();
+  }
+});
+
 form.addEventListener("change", renderCurrent);
 form.addEventListener("submit", saveCheckin);
 resetButton.addEventListener("click", clearHistory);
@@ -455,4 +698,5 @@ renderCurrent();
 renderHistory();
 renderBackpack();
 renderLanguageScan();
-renderScreenUpload();
+void renderScreenUpload();
+void renderCalendar();
