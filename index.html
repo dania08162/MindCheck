@@ -20,17 +20,18 @@
           <span>MindCheck</span>
         </a>
         <div class="topbar-meta">
-          <span>Student wellness dashboard</span>
+          <span>Student burnout early-warning system</span>
         </div>
       </header>
 
       <section class="hero">
         <div>
           <p class="eyebrow">Invisible burnout tracker</p>
-          <h1>MindCheck</h1>
+          <h1>The check engine light for students.</h1>
           <p class="hero-copy">
-            A check engine light for student mental health, designed to spot
-            small patterns before they become a crisis.
+            MindCheck turns tiny daily signals into visible patterns: sleep
+            debt, screen exhaustion, academic load, social withdrawal, and
+            language changes.
           </p>
         </div>
 
@@ -44,8 +45,8 @@
         <article class="panel form-panel">
           <div class="panel-heading compact">
             <div>
-              <p class="eyebrow">Daily check-in</p>
-              <h2>Today's signals</h2>
+              <p class="eyebrow">Burnout dashboard</p>
+              <h2>Daily tiny data</h2>
             </div>
           </div>
 
@@ -54,7 +55,7 @@
               <fieldset class="metric-control">
                 <legend>
                   <span>Sleep</span>
-                  <small id="sleepOutput">6 hours</small>
+                  <small id="sleepOutput">7.5 hours</small>
                 </legend>
                 <div class="choice-row">
                   <label>
@@ -72,6 +73,56 @@
                   <label>
                     <input type="radio" name="sleep" value="9" />
                     <span>9h+</span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset class="metric-control">
+                <legend>
+                  <span>Mood</span>
+                  <small id="moodOutput">6 / 10</small>
+                </legend>
+                <div class="choice-row">
+                  <label>
+                    <input type="radio" name="mood" value="8" />
+                    <span>Steady</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="mood" value="6" checked />
+                    <span>Okay</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="mood" value="4" />
+                    <span>Low</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="mood" value="2" />
+                    <span>Numb</span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset class="metric-control">
+                <legend>
+                  <span>Energy</span>
+                  <small id="energyOutput">6 / 10</small>
+                </legend>
+                <div class="choice-row">
+                  <label>
+                    <input type="radio" name="energy" value="8" />
+                    <span>Full</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="energy" value="6" checked />
+                    <span>Okay</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="energy" value="4" />
+                    <span>Low</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="energy" value="2" />
+                    <span>Empty</span>
                   </label>
                 </div>
               </fieldset>
@@ -100,56 +151,29 @@
                   </label>
                 </div>
               </fieldset>
+            </div>
 
-              <fieldset class="metric-control">
-                <legend>
-                  <span>Workload</span>
-                  <small id="workloadOutput">5 / 10</small>
-                </legend>
-                <div class="choice-row">
-                  <label>
-                    <input type="radio" name="workload" value="2" />
-                    <span>Light</span>
-                  </label>
-                  <label>
-                    <input type="radio" name="workload" value="5" checked />
-                    <span>Normal</span>
-                  </label>
-                  <label>
-                    <input type="radio" name="workload" value="8" />
-                    <span>Heavy</span>
-                  </label>
-                  <label>
-                    <input type="radio" name="workload" value="10" />
-                    <span>Buried</span>
-                  </label>
-                </div>
-              </fieldset>
-
-              <fieldset class="metric-control">
-                <legend>
-                  <span>Mood</span>
-                  <small id="moodOutput">5 / 10</small>
-                </legend>
-                <div class="choice-row">
-                  <label>
-                    <input type="radio" name="mood" value="8" />
-                    <span>Steady</span>
-                  </label>
-                  <label>
-                    <input type="radio" name="mood" value="6" checked />
-                    <span>Okay</span>
-                  </label>
-                  <label>
-                    <input type="radio" name="mood" value="4" />
-                    <span>Low</span>
-                  </label>
-                  <label>
-                    <input type="radio" name="mood" value="2" />
-                    <span>Numb</span>
-                  </label>
-                </div>
-              </fieldset>
+            <div class="number-grid">
+              <label>
+                <span>Screen time</span>
+                <input id="screenTime" type="number" min="0" max="18" step="0.5" value="5" />
+                <small>hours today</small>
+              </label>
+              <label>
+                <span>Homework</span>
+                <input id="homeworkHours" type="number" min="0" max="16" step="0.5" value="3" />
+                <small>hours today</small>
+              </label>
+              <label>
+                <span>Social interactions</span>
+                <input id="socialInteractions" type="number" min="0" max="30" step="1" value="4" />
+                <small>meaningful moments</small>
+              </label>
+              <label>
+                <span>Assignments due</span>
+                <input id="assignmentsDue" type="number" min="0" max="20" step="1" value="2" />
+                <small>next 7 days</small>
+              </label>
             </div>
 
             <div class="toggle-grid">
@@ -172,11 +196,11 @@
             </div>
 
             <label class="note-field">
-              <span>One-line note</span>
+              <span>Journal / one-line note</span>
               <textarea
                 id="note"
                 rows="3"
-                placeholder="Example: two exams tomorrow, felt numb after class"
+                placeholder="Example: three deadlines, barely slept, kept rereading the same paragraph"
               ></textarea>
             </label>
 
@@ -192,10 +216,17 @@
         <article class="panel gauge-panel">
           <div class="panel-heading">
             <div>
-              <p class="eyebrow">Current burnout risk</p>
-              <h2 id="riskTitle">Baseline</h2>
+              <p class="eyebrow">Burnout score</p>
+              <h2 id="riskTitle">Stable</h2>
             </div>
             <strong id="scoreValue">0</strong>
+          </div>
+
+          <div class="level-row" id="levelRow">
+            <span class="level-pill stable">Stable</span>
+            <span class="level-pill watch">Watch Out</span>
+            <span class="level-pill stress">High Stress</span>
+            <span class="level-pill risk">Burnout Risk</span>
           </div>
 
           <div class="gauge" aria-label="Burnout risk gauge">
@@ -207,8 +238,45 @@
             </div>
           </div>
 
+          <div class="battery-block">
+            <div class="battery-shell">
+              <div id="batteryFill"></div>
+            </div>
+            <span id="batteryText">Battery: 100%</span>
+          </div>
+
           <div class="signal-list" id="signalList">
-            <p>Move the check-in controls to reveal your strongest signals.</p>
+            <p>Choose today's signals to reveal the strongest warnings.</p>
+          </div>
+        </article>
+
+        <article class="panel trend-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Trend detector</p>
+              <h2>Hidden pattern sentence</h2>
+            </div>
+          </div>
+          <p class="trend-callout" id="trendText">
+            Save a few check-ins to compare sleep, workload, and mood over time.
+          </p>
+          <div class="crack-graph" id="crackGraph" aria-label="Crack graph"></div>
+        </article>
+
+        <article class="panel twin-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Burnout twin</p>
+              <h2>Avatar mirror</h2>
+            </div>
+          </div>
+          <div class="avatar-stage">
+            <div class="avatar" id="burnoutTwin">
+              <span class="avatar-head"></span>
+              <span class="avatar-body"></span>
+              <span class="avatar-pack"></span>
+            </div>
+            <p id="twinText">Your twin looks steady today.</p>
           </div>
         </article>
 
@@ -230,6 +298,91 @@
             </div>
           </div>
           <div class="history-list" id="historyList"></div>
+        </article>
+
+        <article class="panel module-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Calendar scan</p>
+              <h2>Burnout from your calendar</h2>
+            </div>
+          </div>
+          <div class="insight-card" id="calendarInsight">
+            Less than 2 hours of uninterrupted free time is flagged when events,
+            assignments, and homework stack together.
+          </div>
+        </article>
+
+        <article class="panel module-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Digital exhaustion</p>
+              <h2>Screen Time screenshot</h2>
+            </div>
+          </div>
+          <label class="upload-card">
+            <input id="screenUpload" type="file" accept="image/*" />
+            <span>Upload Screen Time screenshot</span>
+          </label>
+          <div class="insight-card" id="screenInsight">
+            Uploading a screenshot would let AI extract phone usage, late-night
+            activity, and bedtime shifts.
+          </div>
+        </article>
+
+        <article class="panel module-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Academic forecast</p>
+              <h2>Stress weather</h2>
+            </div>
+          </div>
+          <div class="forecast-card" id="forecastCard">Calm</div>
+          <div class="insight-card" id="academicInsight">
+            Add deadlines and study load to predict next week's stress front.
+          </div>
+        </article>
+
+        <article class="panel module-panel backpack-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Invisible backpack</p>
+              <h2>What are you carrying?</h2>
+            </div>
+          </div>
+          <div class="backpack-layout">
+            <div class="backpack-visual">
+              <div class="backpack-fill" id="backpackFill"></div>
+            </div>
+            <div class="backpack-items">
+              <label><input type="checkbox" data-weight="18" /> Homework</label>
+              <label><input type="checkbox" data-weight="16" /> Family responsibilities</label>
+              <label><input type="checkbox" data-weight="12" /> Sports</label>
+              <label><input type="checkbox" data-weight="18" /> Job</label>
+              <label><input type="checkbox" data-weight="16" /> College applications</label>
+              <label><input type="checkbox" data-weight="10" /> Clubs</label>
+            </div>
+          </div>
+          <div class="insight-card" id="backpackInsight">
+            Backpack load: 0%. Add weights to reveal the total.
+          </div>
+        </article>
+
+        <article class="panel module-panel language-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Language patterns</p>
+              <h2>Journal fatigue scan</h2>
+            </div>
+          </div>
+          <textarea
+            id="journalScan"
+            rows="4"
+            placeholder="Paste a journal entry here to scan for exhaustion language."
+          ></textarea>
+          <div class="insight-card" id="languageInsight">
+            Fatigue words will appear here as a pattern, not a diagnosis.
+          </div>
         </article>
       </section>
     </main>
