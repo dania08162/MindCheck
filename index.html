@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MindCheck | Burnout Signal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#">
+          <span class="brand-mark">M</span>
+          <span>MindCheck</span>
+        </a>
+        <div class="topbar-meta">
+          <span>Student wellness dashboard</span>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Invisible burnout tracker</p>
+          <h1>MindCheck</h1>
+          <p class="hero-copy">
+            A check engine light for student mental health, designed to spot
+            small patterns before they become a crisis.
+          </p>
+        </div>
+
+        <div class="status-chip" id="statusChip">
+          <span class="status-dot"></span>
+          <span id="statusText">Ready for check-in</span>
+        </div>
+      </section>
+
+      <section class="dashboard-grid">
+        <article class="panel form-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Daily check-in</p>
+              <h2>Today's signals</h2>
+            </div>
+          </div>
+
+          <form id="checkinForm">
+            <div class="metric-grid">
+              <fieldset class="metric-control">
+                <legend>
+                  <span>Sleep</span>
+                  <small id="sleepOutput">6 hours</small>
+                </legend>
+                <div class="choice-row">
+                  <label>
+                    <input type="radio" name="sleep" value="3.5" />
+                    <span>3-4h</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="sleep" value="5.5" />
+                    <span>5-6h</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="sleep" value="7.5" checked />
+                    <span>7-8h</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="sleep" value="9" />
+                    <span>9h+</span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset class="metric-control">
+                <legend>
+                  <span>Stress</span>
+                  <small id="stressOutput">5 / 10</small>
+                </legend>
+                <div class="choice-row">
+                  <label>
+                    <input type="radio" name="stress" value="2" />
+                    <span>Calm</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="stress" value="5" checked />
+                    <span>Busy</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="stress" value="8" />
+                    <span>Tense</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="stress" value="10" />
+                    <span>Maxed</span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset class="metric-control">
+                <legend>
+                  <span>Workload</span>
+                  <small id="workloadOutput">5 / 10</small>
+                </legend>
+                <div class="choice-row">
+                  <label>
+                    <input type="radio" name="workload" value="2" />
+                    <span>Light</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="workload" value="5" checked />
+                    <span>Normal</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="workload" value="8" />
+                    <span>Heavy</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="workload" value="10" />
+                    <span>Buried</span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset class="metric-control">
+                <legend>
+                  <span>Mood</span>
+                  <small id="moodOutput">5 / 10</small>
+                </legend>
+                <div class="choice-row">
+                  <label>
+                    <input type="radio" name="mood" value="8" />
+                    <span>Steady</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="mood" value="6" checked />
+                    <span>Okay</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="mood" value="4" />
+                    <span>Low</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="mood" value="2" />
+                    <span>Numb</span>
+                  </label>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="toggle-grid">
+              <label class="toggle-card">
+                <input type="checkbox" id="meals" />
+                <span>Skipped meals</span>
+              </label>
+              <label class="toggle-card">
+                <input type="checkbox" id="isolation" />
+                <span>Withdrew from people</span>
+              </label>
+              <label class="toggle-card">
+                <input type="checkbox" id="focus" />
+                <span>Could not focus</span>
+              </label>
+              <label class="toggle-card">
+                <input type="checkbox" id="headache" />
+                <span>Physical tension</span>
+              </label>
+            </div>
+
+            <label class="note-field">
+              <span>One-line note</span>
+              <textarea
+                id="note"
+                rows="3"
+                placeholder="Example: two exams tomorrow, felt numb after class"
+              ></textarea>
+            </label>
+
+            <div class="actions">
+              <button type="submit">Save check-in</button>
+              <button type="button" class="ghost-button" id="resetButton">
+                Clear history
+              </button>
+            </div>
+          </form>
+        </article>
+
+        <article class="panel gauge-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Current burnout risk</p>
+              <h2 id="riskTitle">Baseline</h2>
+            </div>
+            <strong id="scoreValue">0</strong>
+          </div>
+
+          <div class="gauge" aria-label="Burnout risk gauge">
+            <div class="gauge-ring" id="gaugeRing">
+              <div class="gauge-core">
+                <span id="gaugePercent">0%</span>
+                <small>risk load</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="signal-list" id="signalList">
+            <p>Move the check-in controls to reveal your strongest signals.</p>
+          </div>
+        </article>
+
+        <article class="panel pattern-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Pattern recognition</p>
+              <h2>Early warning signs</h2>
+            </div>
+          </div>
+          <div class="pattern-stack" id="patternStack"></div>
+        </article>
+
+        <article class="panel history-panel">
+          <div class="panel-heading compact">
+            <div>
+              <p class="eyebrow">Saved data</p>
+              <h2>Recent check-ins</h2>
+            </div>
+          </div>
+          <div class="history-list" id="historyList"></div>
+        </article>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
