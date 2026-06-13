@@ -276,7 +276,16 @@
               <span class="avatar-body"></span>
               <span class="avatar-pack"></span>
             </div>
-            <p id="twinText">Your twin looks steady today.</p>
+            <p id="twinText">My twin looks steady today.</p>
+            <div class="twin-chat-card">
+              <div class="twin-chat-log" id="twinChatLog">
+                <p class="twin-chat-bubble bot">I’m your burnout twin. Ask me about sleep, stress, your screenshot, or your calendar.</p>
+              </div>
+              <div class="twin-chat-controls">
+                <textarea id="twinChatInput" rows="2" placeholder="Ask your twin something…"></textarea>
+                <button type="button" id="twinSendButton">Send</button>
+              </div>
+            </div>
           </div>
         </article>
 
@@ -307,9 +316,12 @@
               <h2>Burnout from your calendar</h2>
             </div>
           </div>
+          <label class="upload-card">
+            <input id="calendarUpload" type="file" accept="image/*" />
+            <span>Attach a calendar screenshot</span>
+          </label>
           <div class="insight-card" id="calendarInsight">
-            Less than 2 hours of uninterrupted free time is flagged when events,
-            assignments, and homework stack together.
+            Attach a real calendar screenshot before I analyze your schedule. I will not guess your obligations from assumptions.
           </div>
         </article>
 
@@ -387,6 +399,7 @@
       </section>
     </main>
 
+    <script src="twinEngine.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
