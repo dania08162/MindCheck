@@ -51,6 +51,10 @@ const output = {
   twinSendButton: document.querySelector("#twinSendButton"),
 };
 
+const coverScreen = document.querySelector("#coverScreen");
+const startButton = document.querySelector("#startButton");
+const appShell = document.querySelector(".app-shell");
+
 let checkins = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
 
 function getCheckedValue(name) {
@@ -102,10 +106,10 @@ function levelFromScore(score) {
 
 function levelText(level) {
   const labels = {
-    stable: ["Stable", "Stable"],
-    watch: ["Watch Out", "Watch Out"],
-    stress: ["High Stress", "High Stress"],
-    risk: ["Burnout Risk", "Burnout Risk"],
+    stable: ["stable", "stable"],
+    watch: ["watch out", "watch out"],
+    stress: ["high stress", "high stress"],
+    risk: ["burnout risk", "burnout risk"],
   };
 
   return labels[level];
@@ -169,10 +173,10 @@ function calculateRisk(data, history = checkins) {
   }
 
   const toggles = [
-    [data.meals, 5, "Skipped meals are adding physical strain."],
-    [data.isolation, 5, "Withdrawal is showing up as a warning sign."],
-    [data.focus, 5, "Focus trouble suggests the load is mounting."],
-    [data.headache, 5, "Physical tension is showing up in the body."],
+    [data.meals, 5, "skipped meals are adding physical strain."],
+    [data.isolation, 5, "withdrawal is showing up as a warning sign."],
+    [data.focus, 5, "focus trouble suggests the load is mounting."],
+    [data.headache, 5, "physical tension is showing up in the body."],
   ];
 
   toggles.forEach(([active, weight, message]) => {
@@ -228,11 +232,11 @@ function loadImage(file) {
 
 async function validateImageFile(file, type = "screenshot") {
   if (!file) {
-    return { valid: false, reason: `Attach a ${type} screenshot before I analyze it.` };
+return { valid: false, reason: `attach a ${type} screenshot before i analyze it.` };
   }
 
   if (!file.type.startsWith("image/")) {
-    return { valid: false, reason: "That file is not a usable image. Please attach a photo or screenshot instead." };
+    return { valid: false, reason: "that file is not a usable image. please attach a photo or screenshot instead." };
   }
 
   try {
@@ -270,7 +274,7 @@ async function validateImageFile(file, type = "screenshot") {
     if (isTooSmall || isTooFlat) {
       return {
         valid: false,
-        reason: "This image is too blurry, too small, or too blank to be reliable. Attach a clearer screenshot that actually shows the screen or calendar details.",
+        reason: "this image is too blurry, too small, or too blank to be reliable. attach a clearer screenshot that actually shows the screen or calendar details.",
       };
     }
 
@@ -316,7 +320,7 @@ function renderCurrent() {
 
   output.signals.innerHTML = risk.signals.length
     ? risk.signals.map((signal) => `<p>${escapeHtml(signal)}</p>`).join("")
-    : "<p>No major warning signs detected from this check-in.</p>";
+    : "<p>no major warning signs detected from this check-in.</p>";
 
   renderPatterns(risk);
   renderTrend(data, risk);
@@ -383,7 +387,7 @@ function renderTrend(currentData) {
   const recent = [currentData, ...checkins].slice(0, 14);
   if (recent.length < 4) {
     output.trend.textContent =
-      "A few more check-ins will help this pattern feel more honest and useful. For now, the trend is still soft and easy to adjust.";
+      "a few more check-ins will help this pattern feel more honest and useful. for now, the trend is still soft and easy to adjust.";
     return;
   }
 
@@ -432,31 +436,31 @@ async function renderCalendar() {
 
   if (!file) {
     output.calendar.textContent =
-      "Attach a real calendar screenshot before I analyze your schedule. I will not guess your obligations from assumptions.";
+      "attach a real calendar screenshot before i analyze your schedule. i will not guess your obligations from assumptions.";
     return;
   }
 
   const result = await validateImageFile(file, "calendar");
 
   if (!result.valid) {
-    output.calendar.textContent = `Calendar image invalid: ${result.reason}`;
+    output.calendar.textContent = `calendar image invalid: ${result.reason}`;
     return;
   }
 
   output.calendar.textContent =
-    "Calendar screenshot accepted. I can review the visible blocks from this image, but I will not invent missing classes, deadlines, or events.";
+    "calendar screenshot accepted. i can review the visible blocks from this image, but i will not invent missing classes, deadlines, or events.";
 }
 
 function renderAcademic(data, risk) {
   const storm = data.assignmentsDue >= 5 || risk.score >= 78;
   const busy = data.assignmentsDue >= 3 || data.homeworkHours >= 5 || risk.score >= 58;
-  output.forecast.textContent = storm ? "Burnout Storm" : busy ? "Busy Front" : "Calm";
+  output.forecast.textContent = storm ? "burnout storm" : busy ? "busy front" : "calm";
   output.forecast.className = `forecast-card ${storm ? "storm" : busy ? "busy" : "calm"}`;
   output.academic.textContent = storm
-    ? `High stress front expected next week due to ${data.assignmentsDue} overlapping deadlines.`
+    ? `high stress front expected next week due to ${data.assignmentsDue} overlapping deadlines.`
     : busy
-      ? "Moderate academic pressure is building. Protect one recovery block before the next deadline."
-      : "Academic weather looks calm from today's data.";
+      ? "moderate academic pressure is building. protect one recovery block before the next deadline."
+      : "academic weather looks calm from today's data.";
 }
 
 function renderTwin(risk) {
@@ -466,15 +470,15 @@ function renderTwin(risk) {
   output.twin.className = `avatar ${risk.level}`;
 
   if (capped >= 70) {
-    output.twinText.textContent = "Your twin is carrying a real load today — shoulders are dropping and the battery is low.";
+    output.twinText.textContent = "your twin is carrying a real load today — shoulders are dropping and the battery is low.";
   } else if (capped >= 35) {
-    output.twinText.textContent = "Your twin is starting to feel the weight, even if it still looks manageable on the outside.";
+    output.twinText.textContent = "your twin is starting to feel the weight, even if it still looks manageable on the outside.";
   } else if (risk.score >= 68) {
-    output.twinText.textContent = "Your twin looks worn down today, but the backpack is still light right now.";
+    output.twinText.textContent = "your twin looks worn down today, but the backpack is still light right now.";
   } else if (risk.score >= 49) {
-    output.twinText.textContent = "Your twin is a little tense, and it shows in the posture more than the backpack.";
+    output.twinText.textContent = "your twin is a little tense, and it shows in the posture more than the backpack.";
   } else {
-    output.twinText.textContent = "My twin looks steady today — soft, calm, and ready for a gentle reset.";
+    output.twinText.textContent = "my twin looks steady today — soft, calm, and ready for a gentle reset.";
   }
 }
 
@@ -496,38 +500,38 @@ function getTwinResponse(prompt, data, risk) {
   const isQuestion = /\?$/.test(trimmed);
 
   if (/\b(hi|hey|hello|hey there|how are you|yo)\b/.test(text)) {
-    return "Hey, I’m really glad you’re here. I can talk with you like a friend, not just dump numbers at you. What feels the heaviest right now — your mind, your schedule, or your energy?";
+    return "hey, i’m really glad you’re here. i can talk with you like a friend, not just dump numbers at you. what feels the heaviest right now — your mind, your schedule, or your energy?";
   }
 
   if (/\b(stress|stressed|overwhelm|overwhelmed|anxious|panic|sad|down|tired|drained|burnout|low mood|not okay|cry|crying)\b/.test(text)) {
-    return "That sounds really full, and I’m glad you said it out loud. Let’s keep this gentle: take one slow breath, drink some water, and choose one tiny next step. I can help you sort what feels urgent from what can wait.";
+    return "that sounds really full, and i’m glad you said it out loud. let’s keep this gentle: take one slow breath, drink some water, and choose one tiny next step. i can help you sort what feels urgent from what can wait.";
   }
 
   if (/\b(sleep|bedtime|rest|tired)\b/.test(text)) {
-    return `Your sleep is ${data.sleep} hours right now. If that feels short, try giving yourself one softer night this week: dim the screen, set a small bedtime cue, and let your body know it is safe to slow down.`;
+    return `your sleep is ${data.sleep} hours right now. if that feels short, try giving yourself one softer night this week: dim the screen, set a small bedtime cue, and let your body know it is safe to slow down.`;
   }
 
   if (/\b(calendar|schedule|classes|deadlines|assignments)\b/.test(text)) {
-    return "I can help with that, but I only want to use real details you attach. If you upload a calendar screenshot, I’ll look at what is actually visible instead of guessing.";
+    return "i can help with that, but i only want to use real details you attach. if you upload a calendar screenshot, i’ll look at what is actually visible instead of guessing.";
   }
 
   if (/\b(screenshot|screen|phone|usage|image)\b/.test(text)) {
-    return "Absolutely — if the image is clear enough to read, I can help interpret what it shows. If it looks blurry, tiny, or blank, I’ll tell you it needs a better screenshot instead of pretending it’s useful.";
+    return "absolutely — if the image is clear enough to read, i can help interpret what it shows. if it looks blurry, tiny, or blank, i’ll tell you it needs a better screenshot instead of pretending it’s useful.";
   }
 
   if (/\b(help|what should i do|advice|coping|reset|calm|relax)\b/.test(text)) {
-    return "A gentle reset usually works best: one warm drink, one short walk, one small task, and one kind sentence to yourself. You do not need to fix everything at once.";
+    return "a gentle reset usually works best: one warm drink, one short walk, one small task, and one kind sentence to yourself. you do not need to fix everything at once.";
   }
 
   if (/\b(thank|thanks|appreciate|love you|cute)\b/.test(text)) {
-    return "I’m glad I can be here for you. You deserve support that feels warm, not pressured.";
+    return "i’m glad i can be here for you. you deserve support that feels warm, not pressured.";
   }
 
   if (isQuestion) {
-    return "I’m happy to talk through that with you. You do not have to have it all figured out right now — tell me what part feels most important, and we’ll take it one step at a time.";
+    return "i’m happy to talk through that with you. you do not have to have it all figured out right now — tell me what part feels most important, and we’ll take it one step at a time.";
   }
 
-  return "I’m here to listen, not to rush you. Tell me what is on your mind in your own words, and I’ll help you feel a little less alone with it.";
+  return "i’m here to listen, not to rush you. tell me what is on your mind in your own words, and i’ll help you feel a little less alone with it.";
 }
 
 function handleTwinChat() {
@@ -693,6 +697,21 @@ output.twinChatInput?.addEventListener("keydown", (event) => {
 form.addEventListener("change", renderCurrent);
 form.addEventListener("submit", saveCheckin);
 resetButton.addEventListener("click", clearHistory);
+
+if (startButton) {
+  startButton.addEventListener("click", () => {
+    coverScreen?.classList.add("hidden");
+    appShell?.classList.remove("hidden");
+    if (coverScreen) coverScreen.setAttribute("aria-hidden", "true");
+    if (appShell) appShell.removeAttribute("aria-hidden");
+    renderCurrent();
+    renderHistory();
+    renderBackpack();
+    renderLanguageScan();
+    void renderScreenUpload();
+    void renderCalendar();
+  });
+}
 
 renderCurrent();
 renderHistory();
