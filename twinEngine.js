@@ -90,15 +90,15 @@
     const trimmed = String(prompt || '').trim();
 
     if (!trimmed) {
-      return 'I’m here. Tell me what is on your mind, and I’ll help you make sense of it without rushing you ♡';
+      return 'I’m here. Tell me what is on your mind, and I’ll help you make sense of it without rushing you.';
     }
 
-    if (/\b(hi|hii|hey|hello|yo|what's up|how are you)\b/.test(text)) {
+    if (/\b(hi|hey|hello|yo|how are you)\b/.test(text)) {
       return "Hey, I’m really glad you’re here. I can talk with you like a friend, not just toss out numbers. What feels the heaviest right now — your mind, your schedule, or your energy?";
     }
 
-    if (/\b(thank|thanks|love you|cute|appreciate|appreciate it|thank you|thanks you)\b/.test(text)) {
-      return 'I’m glad I can be here for you. You deserve support that feels warm, not pressure-filled ♡ ';
+    if (/\b(thank|thanks|love you|cute|appreciate)\b/.test(text)) {
+      return 'I’m glad I can be here for you. You deserve support that feels warm, not pressure-filled.';
     }
 
     return buildGentleReply(prompt, data, risk);
