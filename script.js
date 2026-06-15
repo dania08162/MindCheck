@@ -51,11 +51,32 @@ const output = {
   twinSendButton: document.querySelector("#twinSendButton"),
 };
 
-const coverScreen = document.querySelector("#coverScreen");
-const startButton = document.querySelector("#startButton");
-const appShell = document.querySelector(".app-shell");
+const sidebar = document.querySelector("#sidebar");
+const sidebarHandle = document.querySelector("#sidebarHandle");
+const sidebarClose = document.querySelector("#sidebarClose");
+const menuButton = document.querySelector("#menuButton");
+const navLinks = document.querySelectorAll(".nav-link");
+const pageSections = document.querySelectorAll(".page-section");
 
 let checkins = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+function setActivePage(pageId) {
+  pageSections.forEach((section) => {
+    const active = section.id === pageId;
+    section.classList.toggle("active", active);
+    section.setAttribute("aria-hidden", active ? "false" : "true");
+  });
+
+  navLinks.forEach((button) => {
+    const active = button.dataset.page === pageId;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-current", active ? "page" : "false");
+  });
+}
+
+function toggleSidebar(open) {
+  document.body.classList.toggle("sidebar-open", open);
+}
 
 function getCheckedValue(name) {
   return Number(document.querySelector(`input[name="${name}"]:checked`).value);
@@ -694,24 +715,34 @@ output.twinChatInput?.addEventListener("keydown", (event) => {
   }
 });
 
+navLinks.forEach((button) => {
+  button.addEventListener("click", () => {
+    setActivePage(button.dataset.page);
+    toggleSidebar(false);
+  });
+});
+
+menuButton?.addEventListener("click", () => {
+  toggleSidebar(!document.body.classList.contains("sidebar-open"));
+});
+
+sidebarHandle?.addEventListener("mouseenter", () => {
+  toggleSidebar(true);
+});
+
+sidebar?.addEventListener("mouseleave", () => {
+  toggleSidebar(false);
+});
+
+sidebarClose?.addEventListener("click", () => {
+  toggleSidebar(false);
+});
+
 form.addEventListener("change", renderCurrent);
 form.addEventListener("submit", saveCheckin);
 resetButton.addEventListener("click", clearHistory);
 
-if (startButton) {
-  startButton.addEventListener("click", () => {
-    coverScreen?.classList.add("hidden");
-    appShell?.classList.remove("hidden");
-    if (coverScreen) coverScreen.setAttribute("aria-hidden", "true");
-    if (appShell) appShell.removeAttribute("aria-hidden");
-    renderCurrent();
-    renderHistory();
-    renderBackpack();
-    renderLanguageScan();
-    void renderScreenUpload();
-    void renderCalendar();
-  });
-}
+setActivePage("page-summary");
 
 renderCurrent();
 renderHistory();
